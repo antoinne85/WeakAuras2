@@ -21,6 +21,7 @@ locales.xml
 
 Prototypes.lua
 Types.lua
+WeakAurasDifficultyMap.lua
 WeakAurasTalents.lua
 WeakAuras.lua
 Transmission.lua

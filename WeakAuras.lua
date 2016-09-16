@@ -911,62 +911,19 @@ function WeakAuras.ScanForLoads(self, event, arg1)
   if (inInstance) then
     WeakAuras.UpdateCurrentInstanceType(instanceType)
     size = Type
-    if difficultyIndex == 1 then
-      size = "party"
-      difficulty = "normal"
-    elseif difficultyIndex == 2 then
-      size = "party"
-      difficulty = "heroic"
-    elseif difficultyIndex == 3 then
-      size = "ten"
-      difficulty = "normal"
-    elseif difficultyIndex == 4 then
-      size = "twentyfive"
-      difficulty = "normal"
-    elseif difficultyIndex == 5 then
-      size = "ten"
-      difficulty = "heroic"
-    elseif difficultyIndex == 6 then
-      size = "twentyfive"
-      difficulty = "heroic"
-    elseif difficultyIndex == 7 then
-      size = "twentyfive"
-      difficulty = "lfr"
-    elseif difficultyIndex == 8 then
-      size = "party"
-      difficulty = "challenge"
-    elseif difficultyIndex == 9 then
-      size = "fortyman"
-      difficulty = "normal"
-    elseif difficultyIndex == 11 then
-      size = "scenario"
-      difficulty = "heroic"
-    elseif difficultyIndex == 12 then
-      size = "scenario"
-      difficulty = "normal"
-    elseif difficultyIndex == 14 then
-      size = "flexible"
-      difficulty = "normal"
-    elseif difficultyIndex == 15 then
-      size = "flexible"
-      difficulty = "heroic"
-    elseif difficultyIndex == 16 then
-      size = "twenty"
-      difficulty = "mythic"
-    elseif difficultyIndex == 17 then
-      size = "flexible"
-      difficulty = "lfr"
-    elseif difficultyIndex == 23 then
-      size = "party"
-      difficulty = "mythic"
-    elseif difficultyIndex == 24 then
-      size = "party"
-      difficulty = "timewalking"
+
+    local mappedSize, mappedDifficulty = InstanceDifficulty.GetFromIndex(difficultyIndex)
+
+    if mappedSize == nil then
+      WeakAuras.UpdateCurrentInstanceType();
+      size = "none"
+      difficulty = "none"
+    else
+      size = mappedSize
+      difficulty = mappedDifficulty
     end
   else
-    WeakAuras.UpdateCurrentInstanceType();
-    size = "none"
-    difficulty = "none"
+    
   end
 
   if (WeakAuras.CurrentEncounter) then
@@ -978,7 +935,7 @@ function WeakAuras.ScanForLoads(self, event, arg1)
 
   if (event == "ZONE_CHANGED_NEW_AREA") then
     WeakAuras.LoadEncounterInitScripts();
- end
+  end
 
   local changed = 0;
   local shouldBeLoaded, couldBeLoaded;
