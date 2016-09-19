@@ -15,12 +15,12 @@ function ResetMocks()
     end
 end
 
-function WowApiMock.MockMethod(methodName, mockedData)
-    MockMethodGlobal(methodName, mockedData, WowApiMock)
+function WowApiMock.MockMethod(methodName, mockedData, shouldUnpackResult)
+    MockMethodGlobal(methodName, mockedData, WowApiMock, shouldUnpackResult)
 end
 
 function WowApiMock.MockConstant(constantName, mockedData)
-    MockConstantGlobal("MAX_TALENT_TIERS", 6, WowApiMock)
+    MockConstantGlobal(constantName, mockedData, WowApiMock)
 end
 
 function WowApiMock.CreateMockedMethods()
@@ -109,13 +109,19 @@ function WowApiMock.CreateMockedMethods()
         return classInfoMap[classId]
     end
 
-    WowApiMock.MockMethod("GetClassInfo", getClassInfoFunc)
+    local sortOrderTable = {}
+    for index, value in ipairs(classInfoMap) do
+        table.insert(sortOrderTable, value[3], value[2])
+    end
+
+    WowApiMock.MockMethod("GetClassInfo", getClassInfoFunc, true)
 
     WowApiMock.MockConstant("MAX_TALENT_TIERS", 6)
     WowApiMock.MockConstant("NUM_TALENT_COLUMNS", 3)
 
     WowApiMock.MockConstant("MAX_PVP_TALENT_TIERS", 6)
     WowApiMock.MockConstant("MAX_PVP_TALENT_COLUMNS", 3)
+    WowApiMock.MockConstant("CLASS_SORT_ORDER", sortOrderTable)
 end
 
 WowApiMock.CreateMockedMethods()
@@ -179,7 +185,7 @@ local resetMaxTiers = MAX_TALENT_TIERS
 assert(resetMaxTiers == maxTiersOriginal, "FAIL")
 
 --TESTING When the mock is a function that returns multiple values, the values are unpacked.
-local name, filename, id = GetTalentInfo(1)
+local name, filename, id = GetClassInfo(1)
 assert(name == "Warrior", "FAIL")
 assert(filename == "WARRIOR", "FAIL")
 assert(id == 1, "FAIL")

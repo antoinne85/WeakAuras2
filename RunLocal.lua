@@ -3,10 +3,10 @@ require("WowApiMockWrapper")
 require("LibStubMock")
 
 require("Init")
-
+require("Locales/Localization-enUS")
 
 require("Prototypes")
--- require("Types")
+require("Types")
 
 -- require("WeakAurasDifficultyMap")
 -- require("WeakAurasTalents")

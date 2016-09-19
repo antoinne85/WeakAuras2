@@ -1,7 +1,7 @@
 local WeakAuras = WeakAuras;
 local L = WeakAuras.L;
 
-local LSM = LibStub("LibSharedMedia-3.0");
+--local LSM = LibStub("LibSharedMedia-3.0");
 local LBR = LibStub("LibBabble-Race-3.0"):GetLookupTable()
 
 -- GLOBALS: MANA RAGE FOCUS ENERGY COMBO_POINTS RUNIC_POWER SOUL_SHARDS LUNAR_POWER HOLY_POWER MAELSTROM CHI INSANITY ARCANE_CHARGES FURY PAIN

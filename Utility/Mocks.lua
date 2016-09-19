@@ -19,8 +19,7 @@ This should be the same name that the WoW API uses.]]
 If you specify a literal (like "Bonechewer") GetRealmName would always return Bonechewer. 
 If you specify a function, then the function will be called whenever someone calls that function on the API. 
 Your function will be passed all of the values that the WoW API would have been passed.]]
-function MockMethodFullGlobal(propertyName, getMethodName, setMethodName, defaultValue, dataStore)
-    --MockMethodFullInstanced(_G, getMethodName, setMethodName, defaultValue)
+function MockMethodFullGlobal(propertyName, getMethodName, setMethodName, defaultValue, dataStore, shouldUnpackResult)
     table.insert(dataStore.BackingProperties.Values, propertyName)
     table.insert(dataStore.MockedMethods, getMethodName)
 
@@ -35,7 +34,13 @@ function MockMethodFullGlobal(propertyName, getMethodName, setMethodName, defaul
         -- If that value is a function, call it with whatever parameters
         -- we were given.
         if type(returnValue) == 'function' then
-            return returnValue(realParameters)
+            local functionReturnValue = returnValue(realParameters)
+
+            if shouldUnpackResult and functionReturnValue ~= nil then
+                return table.unpack(functionReturnValue)
+            else
+                return functionReturnValue
+            end
         elseif type(returnValue) == 'table' then
             return table.unpack(returnValue)
         end
@@ -49,12 +54,16 @@ function MockMethodFullGlobal(propertyName, getMethodName, setMethodName, defaul
     end
 end
 
-function MockMethodFullInstanced(instance, propertyName, getMethodName, setMethodName, defaultValue)
+function MockMethodFullInstanced(instance, propertyName, getMethodName, setMethodName, defaultValue, shouldUnpackResult)
+    if shouldUnpackResult == nil then
+        shouldUnpackResult = true
+    end
+    
     table.insert(instance.BackingProperties.Values, propertyName)
     table.insert(instance.MockedMethods, getMethodName)
 
     instance[getMethodName] = function(...)
-        local realParameters = select(1, ...)
+        local realParameters = select(2, ...)
         -- The method being mocked may or may not have parameters
         -- so ... to grab them all.
 
@@ -64,9 +73,23 @@ function MockMethodFullInstanced(instance, propertyName, getMethodName, setMetho
         -- If that value is a function, call it with whatever parameters
         -- we were given.
         if type(returnValue) == 'function' then
-            return returnValue(realParameters)
+            local functionReturnValue = returnValue(realParameters)
+
+            if type(functionReturnValue) == 'table' then
+                if shouldUnpackResult and functionReturnValue ~= nil then
+                    return table.unpack(functionReturnValue)
+                else
+                    return functionReturnValue
+                end
+            end
+            
+            return functionReturnValue
         elseif type(returnValue) == 'table' then
-            return table.unpack(returnValue)
+            if shouldUnpackResult and returnValue ~= nil then
+                return table.unpack(returnValue)
+            else
+                return returnValue
+            end
         end
 
         -- Otherwise it must be a constant, just send it back as-is.
@@ -86,18 +109,18 @@ For instance, if you want to mock the method GetRealmName, set this to "GetRealm
 If you specify a literal (like "Bonechewer") GetRealmName would always return Bonechewer. 
 If you specify a function, then the function will be called whenever someone calls that function on the API. 
 Your function will be passed all of the values that the WoW API would have been passed.]]
-function MockMethodGlobal(methodName, defaultValue, dataStore)
+function MockMethodGlobal(methodName, defaultValue, dataStore, shouldUnpackResult)
     local setMethodName = "Mock"..methodName
     local propertyName = methodName.."BackingProperty"
 
-    MockMethodFullGlobal(propertyName, methodName, setMethodName, defaultValue, dataStore)
+    MockMethodFullGlobal(propertyName, methodName, setMethodName, defaultValue, dataStore, shouldUnpackResult)
 end
 
-function MockMethodInstanced(instance, methodName, defaultValue)
+function MockMethodInstanced(instance, methodName, defaultValue, shouldUnpackResult)
     local setMethodName = "Mock"..methodName
     local propertyName = methodName.."BackingProperty"
 
-    MockMethodFullInstanced(instance, propertyName, methodName, setMethodName, defaultValue)
+    MockMethodFullInstanced(instance, propertyName, methodName, setMethodName, defaultValue, shouldUnpackResult)
 end
 
 function MockConstantInstanced(instance, constantName, defaultValue)
